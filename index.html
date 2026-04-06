@@ -121,7 +121,7 @@
         .audio-label {
             font-size: 0.85rem;
             font-weight: 600;
-            min-width: 90px;
+            min-width: 120px;
             color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.04em;
@@ -304,6 +304,73 @@
             <div class="audio-row">
                 <span class="audio-label">iLQR-50</span>
                 <audio controls preload="none"><source src="audio/ilqr_50/example_6.wav" type="audio/wav"></audio>
+            </div>
+        </div>
+    </div>
+
+    <h2>Model Predictive Control (MPC)</h2>
+
+    <div class="intro">
+        <p>
+            The control formulation enables a receding-horizon MPC mode: at each frame,
+            the system solves a short-horizon iLQR problem and applies only the first control,
+            then re-plans from the new state. This produces causal, streaming synthesis
+            that does not require access to the full target utterance in advance.
+            Below we compare two horizon lengths (H=10, H=20) against the batch iLQR result
+            on <em>valentine</em>.
+        </p>
+    </div>
+
+    <div class="samples-grid">
+        <div class="sample-card">
+            <h3>valentine &mdash; MPC comparison</h3>
+            <div class="audio-row">
+                <span class="audio-label">Target</span>
+                <audio controls preload="none"><source src="audio/target/valentine.wav" type="audio/wav"></audio>
+            </div>
+            <div class="audio-row">
+                <span class="audio-label">iLQR-50 (batch)</span>
+                <audio controls preload="none"><source src="audio/ilqr_50/valentine.wav" type="audio/wav"></audio>
+            </div>
+            <div class="audio-row">
+                <span class="audio-label">MPC H=20</span>
+                <audio controls preload="none"><source src="audio/mpc_h20/valentine.wav" type="audio/wav"></audio>
+            </div>
+            <div class="audio-row">
+                <span class="audio-label">MPC H=10</span>
+                <audio controls preload="none"><source src="audio/mpc_h10/valentine.wav" type="audio/wav"></audio>
+            </div>
+        </div>
+    </div>
+
+    <h2>Online Target Switching</h2>
+
+    <div class="intro">
+        <p>
+            A unique capability of the MPC formulation is mid-utterance target switching:
+            the system begins tracking one acoustic target and seamlessly transitions to
+            a different target partway through the utterance. This is fundamentally
+            impossible with batch optimization (Adam or batch iLQR), which optimizes
+            all frames jointly against a single fixed target. Below, the system starts
+            with <em>valentine</em> and switches to <em>strawberry</em> mid-utterance,
+            using an MPC horizon of 15 frames.
+        </p>
+    </div>
+
+    <div class="samples-grid">
+        <div class="sample-card">
+            <h3>valentine &rarr; strawberry (mid-utterance switch)</h3>
+            <div class="audio-row">
+                <span class="audio-label">Target A (valentine)</span>
+                <audio controls preload="none"><source src="audio/target_switch/target_a.wav" type="audio/wav"></audio>
+            </div>
+            <div class="audio-row">
+                <span class="audio-label">Target B (strawberry)</span>
+                <audio controls preload="none"><source src="audio/target_switch/target_b.wav" type="audio/wav"></audio>
+            </div>
+            <div class="audio-row">
+                <span class="audio-label">Switched result</span>
+                <audio controls preload="none"><source src="audio/target_switch/switch_result.wav" type="audio/wav"></audio>
             </div>
         </div>
     </div>
