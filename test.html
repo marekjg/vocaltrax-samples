@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listening Test — Articulatory Speech Synthesis</title>
+    <title>Listening Test — iLQR Speech Synthesis</title>
     <style>
         :root {
             --bg: #fafafa;
@@ -236,7 +236,7 @@
 
 <!-- ===== PAGE 0: CONSENT & INFO ===== -->
 <div class="page active" id="page-consent">
-    <h1>Listening Test: Articulatory Speech Synthesis</h1>
+    <h1>Listening Test: Speech Synthesis Quality</h1>
     <div class="section">
         <div class="card">
             <h3>About This Study</h3>
@@ -668,9 +668,9 @@ async function submitResults() {
     }
 
     // Always store locally as backup
-    const existing = JSON.parse(localStorage.getItem('vocaltrax_results') || '[]');
+    const existing = JSON.parse(localStorage.getItem('ilqrspeech_results') || '[]');
     existing.push(payload);
-    localStorage.setItem('vocaltrax_results', JSON.stringify(existing));
+    localStorage.setItem('ilqrspeech_results', JSON.stringify(existing));
 
     console.log('Results payload:', JSON.stringify(payload, null, 2));
 
