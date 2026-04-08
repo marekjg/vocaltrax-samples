@@ -252,7 +252,7 @@
                 <p><strong>What you will do:</strong></p>
                 <ol>
                     <li>Complete a brief headphone check (3 trials)</li>
-                    <li><strong>Part 1:</strong> Rate the naturalness of 24 audio samples on a 1-5 scale</li>
+                    <li><strong>Part 1:</strong> Rate the overall quality of 24 audio samples on a 1-5 scale</li>
                     <li><strong>Part 2:</strong> For 8 pairs, choose which sample sounds closer to a reference</li>
                 </ol>
                 <p>Your responses are anonymous. Data will be used for academic research only.</p>
@@ -297,7 +297,7 @@
 <div class="page" id="page-mos">
     <h2>Part 1: Naturalness Rating</h2>
     <div class="instructions">
-        <p>Listen to each audio sample and rate how <strong>natural</strong> it sounds on a scale of 1 to 5. You may replay samples as many times as you like.</p>
+        <p>Listen to each audio sample and rate its <strong>overall quality</strong> on a scale of 1 to 5. Consider clarity, intelligibility, and how pleasant it sounds. You may replay samples as many times as you like.</p>
     </div>
     <div class="progress-text" id="mos-progress-text">0 / 24</div>
     <div class="progress-bar"><div class="progress-fill" id="mos-progress" style="width:0%"></div></div>
@@ -521,7 +521,7 @@ function buildMOS() {
             <audio controls preload="none">
                 <source src="${audioUrl(item.method, item.utterance)}" type="audio/wav">
             </audio>
-            <p style="font-size:0.88rem; margin-top:0.5rem;">How natural does this speech sound?</p>
+            <p style="font-size:0.88rem; margin-top:0.5rem;">Rate the overall quality of this audio:</p>
             <div class="mos-scale">
                 ${[1,2,3,4,5].map(v => `
                     <label>
