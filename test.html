@@ -328,7 +328,7 @@
         <p>Your responses have been recorded successfully.</p>
         <p style="margin-top:1rem; color:var(--muted); font-size:0.9rem;">Your completion code:</p>
         <p style="font-size:1.5rem; font-weight:700; margin:0.5rem 0;" id="completion-code">—</p>
-        <p style="color:var(--muted); font-size:0.88rem;">Please enter this code on Prolific to confirm your participation.</p>
+        <p style="color:var(--muted); font-size:0.88rem;">You will be redirected to Prolific automatically in a few seconds.</p>
     </div>
 </div>
 
@@ -353,7 +353,8 @@
 const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbx26YjLjhzZ9xP-uVIlJCiJtBU-nbEddw5q4b3MLMygG4LTyKaCz8XghQTt2XNQAjj5/exec';
 
 // Prolific completion code — set this to your study's code
-const COMPLETION_CODE = 'C1A2B3D4';
+const COMPLETION_CODE = 'CDVS5TMY';
+const PROLIFIC_REDIRECT = 'https://app.prolific.com/submissions/complete?cc=CDVS5TMY';
 
 const UTTERANCES = [
     'valentine', 'strawberry', 'example_1', 'example_2',
@@ -676,6 +677,9 @@ async function submitResults() {
 
     document.getElementById('completion-code').textContent = COMPLETION_CODE;
     showPage('page-thanks');
+
+    // Auto-redirect to Prolific after 3 seconds
+    setTimeout(() => { window.location.href = PROLIFIC_REDIRECT; }, 3000);
 }
 
 // =========================================================
