@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listening Test — Articulatory Speech Synthesis</title>
+    <style>
+        :root {
+            --bg: #fafafa;
+            --fg: #1a1a1a;
+            --muted: #666;
+            --border: #d0d0d0;
+            --card-bg: #ffffff;
+            --accent: #2c5282;
+            --accent-light: #ebf4ff;
+            --success: #38a169;
+            --warn: #d69e2e;
+            --error: #e53e3e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            line-height: 1.6;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        h1 { font-size: 1.4rem; margin-bottom: 0.3rem; }
+        h2 { font-size: 1.15rem; margin-bottom: 1rem; border-bottom: 2px solid var(--accent); padding-bottom: 0.3rem; }
+        h3 { font-size: 1rem; margin-bottom: 0.5rem; color: var(--accent); }
+
+        .section { margin-bottom: 2rem; }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .card.completed { border-left: 4px solid var(--success); opacity: 0.85; }
+
+        .instructions {
+            font-size: 0.92rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .instructions p { margin-bottom: 0.5rem; }
+        .instructions ul { margin-left: 1.5rem; margin-bottom: 0.5rem; }
+
+        audio { width: 100%; height: 36px; margin: 0.3rem 0; }
+
+        .audio-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .audio-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            min-width: 80px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .mos-scale {
+            display: flex;
+            gap: 0;
+            margin: 0.6rem 0 0.2rem;
+            justify-content: center;
+        }
+
+        .mos-scale label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--border);
+            border-right: none;
+            font-size: 0.85rem;
+            transition: background 0.15s;
+            user-select: none;
+        }
+
+        .mos-scale label:first-child { border-radius: 6px 0 0 6px; }
+        .mos-scale label:last-child { border-radius: 0 6px 6px 0; border-right: 1px solid var(--border); }
+
+        .mos-scale input[type="radio"] { display: none; }
+        .mos-scale input[type="radio"]:checked + span { font-weight: 700; }
+        .mos-scale label:has(input:checked) { background: var(--accent-light); border-color: var(--accent); }
+        .mos-scale label:hover { background: #f0f4f8; }
+
+        .mos-desc {
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-top: 0.15rem;
+        }
+
+        .ab-choice {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.8rem;
+        }
+
+        .ab-choice label {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.8rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .ab-choice input[type="radio"] { display: none; }
+        .ab-choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-light); }
+        .ab-choice label:hover { border-color: #93b3d4; }
+
+        .ab-choice .ab-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-bottom: 0.3rem;
+            text-align: right;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.5rem 0.8rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            margin-top: 0.3rem;
+        }
+
+        .field { margin-bottom: 1rem; }
+        .field label { font-weight: 600; font-size: 0.9rem; }
+
+        .headphone-test .tone-btn {
+            padding: 0.5rem 1.2rem;
+            margin: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .headphone-test .tone-btn.correct { background: var(--success); }
+        .headphone-test .tone-btn.wrong { background: var(--error); }
+
+        .hidden { display: none !important; }
+
+        .warning {
+            background: #fffbeb;
+            border: 1px solid var(--warn);
+            border-radius: 6px;
+            padding: 0.8rem 1rem;
+            font-size: 0.88rem;
+            margin-bottom: 1rem;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        .thank-you { text-align: center; padding: 3rem 1rem; }
+        .thank-you h1 { font-size: 1.8rem; margin-bottom: 1rem; color: var(--success); }
+
+        @media (max-width: 600px) {
+            .audio-row { flex-direction: column; align-items: stretch; gap: 0.2rem; }
+            .audio-label { min-width: auto; }
+            .mos-scale label { padding: 0.4rem 0.5rem; }
+            .ab-choice { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== PAGE 0: CONSENT & INFO ===== -->
+<div class="page active" id="page-consent">
+    <h1>Listening Test: Articulatory Speech Synthesis</h1>
+    <div class="section">
+        <div class="card">
+            <h3>About This Study</h3>
+            <div class="instructions">
+                <p>We are evaluating audio generated by a physics-based speech synthesizer that models the human vocal tract. You will listen to short audio clips (single words or short phrases) and rate their quality.</p>
+                <p><strong>Duration:</strong> approximately 12-15 minutes.</p>
+                <p><strong>Requirements:</strong></p>
+                <ul>
+                    <li>You must use <strong>headphones</strong> (not speakers)</li>
+                    <li>You must be in a <strong>quiet environment</strong></li>
+                    <li>You must be a <strong>fluent English speaker</strong></li>
+                </ul>
+                <p><strong>What you will do:</strong></p>
+                <ol>
+                    <li>Complete a brief headphone check (3 trials)</li>
+                    <li><strong>Part 1:</strong> Rate the naturalness of 24 audio samples on a 1-5 scale</li>
+                    <li><strong>Part 2:</strong> For 8 pairs, choose which sample sounds closer to a reference</li>
+                </ol>
+                <p>Your responses are anonymous. Data will be used for academic research only.</p>
+            </div>
+        </div>
+
+        <div class="field">
+            <label for="prolific-id">Prolific ID</label>
+            <input type="text" id="prolific-id" placeholder="Enter your Prolific ID">
+        </div>
+
+        <div class="btn-row">
+            <button id="btn-start" onclick="startTest()">Start Test</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== PAGE 1: HEADPHONE CHECK ===== -->
+<div class="page" id="page-headphone">
+    <h2>Headphone Check</h2>
+    <div class="instructions">
+        <p>In each trial you will hear three tones. One is softer than the others. Click the button for the <strong>softest</strong> tone. You need to get at least 2 out of 3 correct to proceed.</p>
+    </div>
+    <div class="card headphone-test" id="headphone-card">
+        <h3>Trial <span id="hp-trial-num">1</span> of 3</h3>
+        <div style="margin: 1rem 0;">
+            <button class="btn-secondary tone-btn" onclick="playHPTone(0)">Play Tone 1</button>
+            <button class="btn-secondary tone-btn" onclick="playHPTone(1)">Play Tone 2</button>
+            <button class="btn-secondary tone-btn" onclick="playHPTone(2)">Play Tone 3</button>
+        </div>
+        <p style="font-size:0.88rem; color:var(--muted);">Which tone was the <strong>softest</strong>?</p>
+        <div style="margin-top:0.5rem;">
+            <button class="tone-btn" onclick="answerHP(0)">Tone 1</button>
+            <button class="tone-btn" onclick="answerHP(1)">Tone 2</button>
+            <button class="tone-btn" onclick="answerHP(2)">Tone 3</button>
+        </div>
+    </div>
+    <div id="hp-result" class="hidden"></div>
+</div>
+
+<!-- ===== PAGE 2: MOS TEST ===== -->
+<div class="page" id="page-mos">
+    <h2>Part 1: Naturalness Rating</h2>
+    <div class="instructions">
+        <p>Listen to each audio sample and rate how <strong>natural</strong> it sounds on a scale of 1 to 5. You may replay samples as many times as you like.</p>
+    </div>
+    <div class="progress-text" id="mos-progress-text">0 / 24</div>
+    <div class="progress-bar"><div class="progress-fill" id="mos-progress" style="width:0%"></div></div>
+    <div id="mos-items"></div>
+    <div class="btn-row">
+        <button id="btn-mos-next" onclick="finishMOS()" disabled>Continue to Part 2</button>
+    </div>
+</div>
+
+<!-- ===== PAGE 3: AB PREFERENCE ===== -->
+<div class="page" id="page-ab">
+    <h2>Part 2: Similarity to Reference</h2>
+    <div class="instructions">
+        <p>For each item, first listen to the <strong>Reference</strong> (natural speech target). Then listen to <strong>Sample A</strong> and <strong>Sample B</strong>. Choose which sample sounds <strong>more similar to the reference</strong>.</p>
+    </div>
+    <div class="progress-text" id="ab-progress-text">0 / 8</div>
+    <div class="progress-bar"><div class="progress-fill" id="ab-progress" style="width:0%"></div></div>
+    <div id="ab-items"></div>
+    <div class="btn-row">
+        <button id="btn-submit" onclick="submitResults()" disabled>Submit Results</button>
+    </div>
+</div>
+
+<!-- ===== PAGE 4: THANK YOU ===== -->
+<div class="page" id="page-thanks">
+    <div class="thank-you">
+        <h1>Thank you!</h1>
+        <p>Your responses have been recorded successfully.</p>
+        <p style="margin-top:1rem; color:var(--muted); font-size:0.9rem;">Your completion code:</p>
+        <p style="font-size:1.5rem; font-weight:700; margin:0.5rem 0;" id="completion-code">—</p>
+        <p style="color:var(--muted); font-size:0.88rem;">Please enter this code on Prolific to confirm your participation.</p>
+    </div>
+</div>
+
+<!-- ===== PAGE: HEADPHONE FAIL ===== -->
+<div class="page" id="page-hp-fail">
+    <div class="thank-you">
+        <h1 style="color:var(--error);">Headphone Check Failed</h1>
+        <p>Unfortunately, you did not pass the headphone screening. This study requires headphones for accurate audio evaluation.</p>
+        <p style="margin-top:1rem; color:var(--muted);">Please ensure you are wearing headphones and try again, or return the study on Prolific.</p>
+        <div class="btn-row" style="justify-content:center; margin-top:1.5rem;">
+            <button onclick="location.reload()">Try Again</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// =========================================================
+// CONFIGURATION
+// =========================================================
+
+// Google Apps Script Web App URL — replace with your actual endpoint
+const SUBMIT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
+
+// Prolific completion code — set this to your study's code
+const COMPLETION_CODE = 'C1A2B3D4';
+
+const UTTERANCES = [
+    'valentine', 'strawberry', 'example_1', 'example_2',
+    'example_3', 'example_4', 'example_5', 'example_6'
+];
+
+const METHODS = ['adam_2000', 'ilqr_50'];
+// MPC only has valentine — include as bonus MOS items
+const MPC_METHODS = ['mpc_h20'];
+const MPC_UTTERANCES = ['valentine'];
+
+const BASE_URL = 'audio';
+
+// =========================================================
+// STATE
+// =========================================================
+
+let prolificId = '';
+let hpTrials = [];
+let hpCorrect = 0;
+let hpCurrent = 0;
+let mosItems = [];
+let mosResponses = {};
+let abItems = [];
+let abResponses = {};
+let audioCtx = null;
+let startTime = null;
+
+// =========================================================
+// UTILITY
+// =========================================================
+
+function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+function audioUrl(method, utterance) {
+    return `${BASE_URL}/${method}/${utterance}.wav`;
+}
+
+// =========================================================
+// CONSENT
+// =========================================================
+
+function startTest() {
+    prolificId = document.getElementById('prolific-id').value.trim();
+    if (!prolificId) {
+        alert('Please enter your Prolific ID.');
+        return;
+    }
+    startTime = Date.now();
+    initHeadphoneCheck();
+    showPage('page-headphone');
+}
+
+// =========================================================
+// HEADPHONE CHECK (Huggins-style using Web Audio API)
+// Plays 3 tones at different volumes; one is quieter.
+// With headphones the difference is clear; on speakers it's harder.
+// =========================================================
+
+function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return audioCtx;
+}
+
+function initHeadphoneCheck() {
+    // Generate 3 trials. Each trial: 3 tones, one is quiet.
+    hpTrials = [];
+    for (let i = 0; i < 3; i++) {
+        const quietIdx = Math.floor(Math.random() * 3);
+        // Use different frequencies per trial to avoid memorization
+        const freqs = [200 + i * 100, 300 + i * 100, 400 + i * 100];
+        hpTrials.push({ quietIdx, freqs });
+    }
+    hpCurrent = 0;
+    hpCorrect = 0;
+    updateHPDisplay();
+}
+
+function updateHPDisplay() {
+    document.getElementById('hp-trial-num').textContent = hpCurrent + 1;
+}
+
+function playHPTone(idx) {
+    const ctx = getAudioCtx();
+    const trial = hpTrials[hpCurrent];
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.frequency.value = trial.freqs[idx];
+    // Quiet tone is at 0.08, others at 0.35
+    gain.gain.value = (idx === trial.quietIdx) ? 0.08 : 0.35;
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+}
+
+function answerHP(idx) {
+    const trial = hpTrials[hpCurrent];
+    if (idx === trial.quietIdx) hpCorrect++;
+    hpCurrent++;
+
+    if (hpCurrent >= 3) {
+        if (hpCorrect >= 2) {
+            buildMOS();
+            buildAB();
+            showPage('page-mos');
+        } else {
+            showPage('page-hp-fail');
+        }
+    } else {
+        updateHPDisplay();
+    }
+}
+
+// =========================================================
+// MOS TEST
+// =========================================================
+
+function buildMOS() {
+    mosItems = [];
+
+    // Main items: each method x each utterance
+    for (const method of METHODS) {
+        for (const utt of UTTERANCES) {
+            mosItems.push({ method, utterance: utt, id: `mos_${method}_${utt}` });
+        }
+    }
+
+    // Target samples (to calibrate and as hidden reference)
+    for (const utt of shuffle(UTTERANCES).slice(0, 4)) {
+        mosItems.push({ method: 'target', utterance: utt, id: `mos_target_${utt}` });
+    }
+
+    // MPC bonus items
+    for (const method of MPC_METHODS) {
+        for (const utt of MPC_UTTERANCES) {
+            mosItems.push({ method, utterance: utt, id: `mos_${method}_${utt}` });
+        }
+    }
+
+    mosItems = shuffle(mosItems);
+
+    const container = document.getElementById('mos-items');
+    container.innerHTML = '';
+
+    mosItems.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.id = `card-${item.id}`;
+        card.innerHTML = `
+            <h3>Sample ${i + 1} of ${mosItems.length}</h3>
+            <audio controls preload="none">
+                <source src="${audioUrl(item.method, item.utterance)}" type="audio/wav">
+            </audio>
+            <p style="font-size:0.88rem; margin-top:0.5rem;">How natural does this speech sound?</p>
+            <div class="mos-scale">
+                ${[1,2,3,4,5].map(v => `
+                    <label>
+                        <input type="radio" name="${item.id}" value="${v}" onchange="onMOS('${item.id}', ${v}, '${item.method}', '${item.utterance}')">
+                        <span>${v}</span>
+                        <span class="mos-desc">${['Bad','Poor','Fair','Good','Excellent'][v-1]}</span>
+                    </label>
+                `).join('')}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    updateMOSProgress();
+}
+
+function onMOS(id, value, method, utterance) {
+    mosResponses[id] = { method, utterance, score: value };
+    const card = document.getElementById(`card-${id}`);
+    card.classList.add('completed');
+    updateMOSProgress();
+}
+
+function updateMOSProgress() {
+    const done = Object.keys(mosResponses).length;
+    const total = mosItems.length;
+    document.getElementById('mos-progress').style.width = `${(done/total)*100}%`;
+    document.getElementById('mos-progress-text').textContent = `${done} / ${total}`;
+    document.getElementById('btn-mos-next').disabled = (done < total);
+}
+
+function finishMOS() {
+    showPage('page-ab');
+}
+
+// =========================================================
+// AB PREFERENCE TEST
+// =========================================================
+
+function buildAB() {
+    abItems = [];
+
+    for (const utt of UTTERANCES) {
+        // Randomly assign Adam and iLQR to A/B
+        const flip = Math.random() < 0.5;
+        abItems.push({
+            utterance: utt,
+            id: `ab_${utt}`,
+            methodA: flip ? 'adam_2000' : 'ilqr_50',
+            methodB: flip ? 'ilqr_50' : 'adam_2000',
+        });
+    }
+
+    abItems = shuffle(abItems);
+
+    const container = document.getElementById('ab-items');
+    container.innerHTML = '';
+
+    abItems.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.id = `card-${item.id}`;
+        card.innerHTML = `
+            <h3>Pair ${i + 1} of ${abItems.length}</h3>
+            <div class="audio-row">
+                <span class="audio-label">Reference</span>
+                <audio controls preload="none">
+                    <source src="${audioUrl('target', item.utterance)}" type="audio/wav">
+                </audio>
+            </div>
+            <div class="ab-choice">
+                <label>
+                    <input type="radio" name="${item.id}" value="A" onchange="onAB('${item.id}', 'A', '${item.methodA}', '${item.methodB}', '${item.utterance}')">
+                    <span class="ab-label">Sample A</span>
+                    <audio controls preload="none" style="width:100%">
+                        <source src="${audioUrl(item.methodA, item.utterance)}" type="audio/wav">
+                    </audio>
+                </label>
+                <label>
+                    <input type="radio" name="${item.id}" value="B" onchange="onAB('${item.id}', 'B', '${item.methodA}', '${item.methodB}', '${item.utterance}')">
+                    <span class="ab-label">Sample B</span>
+                    <audio controls preload="none" style="width:100%">
+                        <source src="${audioUrl(item.methodB, item.utterance)}" type="audio/wav">
+                    </audio>
+                </label>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+
+    updateABProgress();
+}
+
+function onAB(id, choice, methodA, methodB, utterance) {
+    abResponses[id] = {
+        utterance,
+        choice,
+        methodA,
+        methodB,
+        preferred: choice === 'A' ? methodA : methodB
+    };
+    const card = document.getElementById(`card-${id}`);
+    card.classList.add('completed');
+    updateABProgress();
+}
+
+function updateABProgress() {
+    const done = Object.keys(abResponses).length;
+    const total = abItems.length;
+    document.getElementById('ab-progress').style.width = `${(done/total)*100}%`;
+    document.getElementById('ab-progress-text').textContent = `${done} / ${total}`;
+    document.getElementById('btn-submit').disabled = (done < total);
+}
+
+// =========================================================
+// SUBMISSION
+// =========================================================
+
+async function submitResults() {
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    const payload = {
+        prolific_id: prolificId,
+        timestamp: new Date().toISOString(),
+        duration_sec: Math.round((Date.now() - startTime) / 1000),
+        headphone_check: { correct: hpCorrect, total: 3 },
+        mos: Object.values(mosResponses),
+        ab: Object.values(abResponses),
+    };
+
+    try {
+        if (SUBMIT_URL && SUBMIT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL') {
+            await fetch(SUBMIT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
+        }
+    } catch (e) {
+        console.error('Submission error:', e);
+    }
+
+    // Always store locally as backup
+    const existing = JSON.parse(localStorage.getItem('vocaltrax_results') || '[]');
+    existing.push(payload);
+    localStorage.setItem('vocaltrax_results', JSON.stringify(existing));
+
+    console.log('Results payload:', JSON.stringify(payload, null, 2));
+
+    document.getElementById('completion-code').textContent = COMPLETION_CODE;
+    showPage('page-thanks');
+}
+
+// =========================================================
+// URL PARAMS (Prolific auto-fills via query string)
+// =========================================================
+
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get('PROLIFIC_PID') || params.get('prolific_pid') || '';
+    if (pid) {
+        document.getElementById('prolific-id').value = pid;
+    }
+})();
+</script>
+
+</body>
+</html>
